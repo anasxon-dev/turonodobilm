@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, MapPin, Phone } from "lucide-react";
-import { officialContact } from "@/lib/site-data";
+import { branches, officialContact } from "@/lib/site-data";
 import { officialImages } from "./school-home";
-import { AdmissionForm } from "./admission-form";
 
 const pages = {
   maktab: {
@@ -76,29 +75,8 @@ const pages = {
     image: officialImages.facade,
     sections: [
       ["Telefon", officialContact.phone],
-      ["Manzil", officialContact.address],
+      ["Filiallar", branches.map((branch) => branch.name).join(" · ")],
       ["Telegram", "@turonodobilm"],
-    ],
-  },
-  qabul: {
-    label: "Qabul",
-    kicker: "05 / KEYINGI QADAM",
-    title: "Farzandingiz kelajagini bugun boshlang.",
-    body: "Ariza qoldiring — maktab jamoasi siz bilan bog‘lanib, qabul jarayoni va keyingi bosqichlar haqida ma’lumot beradi.",
-    image: officialImages.classroom,
-    sections: [
-      [
-        "01 / Ariza",
-        "Ota-ona va farzandingiz haqidagi asosiy ma’lumotlarni yuboring.",
-      ],
-      [
-        "02 / Suhbat",
-        "Maktab jamoasi siz bilan bog‘lanib, savollaringizga javob beradi.",
-      ],
-      [
-        "03 / Keyingi bosqich",
-        "Qabul tartibi va kerakli ma’lumotlar sizga tushuntiriladi.",
-      ],
     ],
   },
 } as const;
@@ -120,7 +98,7 @@ export function PageShell({ type }: { type: PageType }) {
             <Link href="/maktab-hayoti">Hayot</Link>
             <Link href="/aloqa">Aloqa</Link>
           </nav>
-          <Link className="nav-cta" href="/qabul">
+          <Link className="nav-cta" href="/#admission">
             Qabulga ariza berish
             <ArrowRight size={15} />
           </Link>
@@ -138,7 +116,7 @@ export function PageShell({ type }: { type: PageType }) {
           <p className="inner-kicker">{page.kicker}</p>
           <h1>{page.title}</h1>
           <p className="lead muted">{page.body}</p>
-          <Link className="button button-gold" href="/qabul">
+          <Link className="button button-gold" href="/#admission">
             Qabul haqida bilish
             <ArrowRight size={16} />
           </Link>
@@ -164,40 +142,20 @@ export function PageShell({ type }: { type: PageType }) {
           </div>
         </div>
       </section>
-      {type === "qabul" ? (
-        <section className="section contact-panel admission-panel">
-          <div className="container admission-panel-grid">
-            <div>
-              <p className="section-label">ARIZA QOLDIRISH</p>
-              <h2>Qabul jarayonini bugun boshlang.</h2>
-              <p className="lead">
-                Ma’lumotlaringizni qoldiring. Maktab jamoasi siz bilan telefon
-                orqali bog‘lanadi.
-              </p>
-              <div className="contact-card">
-                <MapPin size={20} />
-                <strong>{officialContact.address}</strong>
-                <a href={`tel:${officialContact.phone}`}>
-                  <Phone size={16} /> {officialContact.phone}
-                </a>
-              </div>
-            </div>
-            <AdmissionForm />
-          </div>
-        </section>
-      ) : type === "aloqa" ? (
+      {type === "aloqa" ? (
         <section className="section contact-panel">
           <div className="container contact-panel-grid">
             <div>
               <p className="section-label">OCHIQ MULOQOT</p>
               <h2>Bizni toping va bog‘laning.</h2>
               <p className="lead">
-                Farg‘ona viloyati, Furqat tumani, Yangi MFY, Surpa, 405-uy.
+                O‘zingizga qulay filialni tanlang yoki telefon orqali
+                bog‘laning. Har bir lokatsiyani xaritada ochishingiz mumkin.
               </p>
             </div>
             <div className="contact-card">
               <MapPin size={20} />
-              <strong>{officialContact.address}</strong>
+              <strong>Filiallarimiz bilan bog‘laning</strong>
               <a href={`tel:${officialContact.phone}`}>
                 <Phone size={16} /> {officialContact.phone}
               </a>
@@ -210,6 +168,24 @@ export function PageShell({ type }: { type: PageType }) {
               </a>
             </div>
           </div>
+          <div className="container branch-grid">
+            {branches.map((branch, index) => (
+              <article className="branch-card" key={branch.name}>
+                <span>FILIAL 0{index + 1}</span>
+                <h3>{branch.name}</h3>
+                <address>{branch.address}</address>
+                <a
+                  href={branch.mapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${branch.name} filialini xaritada ochish`}
+                >
+                  Xaritada ko‘rish
+                  <ArrowRight size={15} />
+                </a>
+              </article>
+            ))}
+          </div>
         </section>
       ) : (
         <section className="section inner-cta">
@@ -218,7 +194,7 @@ export function PageShell({ type }: { type: PageType }) {
               <p className="section-label">KEYINGI QADAM</p>
               <h2>Farzandingiz kelajagini birgalikda boshlaymiz.</h2>
             </div>
-            <Link className="button button-gold" href="/qabul">
+            <Link className="button button-gold" href="/#admission">
               Qabulga ariza berish
               <ArrowRight size={16} />
             </Link>

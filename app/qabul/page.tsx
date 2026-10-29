@@ -1,7 +1,5 @@
-import { PageShell } from '@/components/page-shell'
-
-export const metadata = { title: 'Qabul | Turon Odob-Ilm', description: 'Turon Odob-Ilm maktabiga qabul jarayoni va ariza.' }
+import { redirect } from 'next/navigation'
 
 export default function AdmissionPage() {
-  return <PageShell type="qabul" />
+  redirect('/#admission')
 }

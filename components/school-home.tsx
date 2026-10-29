@@ -9,10 +9,10 @@ import {
   ChevronRight,
   Menu,
   Phone,
-  Play,
   X,
 } from "lucide-react";
 import {
+  branches,
   faqs,
   gallery,
   languages,
@@ -128,8 +128,8 @@ export function SchoolHome() {
   const [langOpen, setLangOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("idle");
+  const [branch, setBranch] = useState("Furqat");
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [videoOpen, setVideoOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const langRef = useRef<HTMLDivElement>(null);
   const t = translations[lang];
@@ -150,7 +150,6 @@ export function SchoolHome() {
       if (event.key === "Escape") {
         setMenuOpen(false);
         setLangOpen(false);
-        setVideoOpen(false);
       }
     };
     document.addEventListener("keydown", close);
@@ -185,6 +184,7 @@ export function SchoolHome() {
       if (!response.ok) throw new Error("submit failed");
       setStatus("success");
       form.reset();
+      setBranch("Furqat");
     } catch {
       setStatus("error");
     }
@@ -228,7 +228,11 @@ export function SchoolHome() {
                 {item}
               </a>
             ))}
-            <a className="nav-cta" href="#admission">
+            <a
+              className="nav-cta"
+              href="#admission"
+              onClick={() => setMenuOpen(false)}
+            >
               {t.apply}
               <ArrowRight size={15} />
             </a>
@@ -288,7 +292,7 @@ export function SchoolHome() {
           <h1>{t.hero}</h1>
           <p className="hero-intro">{t.intro}</p>
           <div className="hero-actions">
-            <a className="button button-gold" href="/qabul">
+            <a className="button button-gold" href="#admission">
               {t.apply}
               <ArrowRight size={17} />
             </a>
@@ -371,13 +375,6 @@ export function SchoolHome() {
               Turon Odob-Ilm haqida rasmiy manbalardagi haqiqiy maktab lavhalari
               bilan tanishing.
             </p>
-            <button
-              type="button"
-              className="video-trigger"
-              onClick={() => setVideoOpen(true)}
-            >
-              <Play size={16} fill="currentColor" /> Videoni ko‘rish
-            </button>
           </div>
           <div className="testimonial-carousel">
             <button
@@ -474,13 +471,32 @@ export function SchoolHome() {
               Dars, muloqot, tadbir va kundalik maktab muhitidan lavhalar.
             </p>
           </div>
-          <div className="life-gallery">
-            {gallery.map(([alt, src]) => (
-              <figure key={src}>
-                <img src={src} alt={alt} loading="lazy" />
-                <figcaption>{alt}</figcaption>
-              </figure>
-            ))}
+          <div
+            className="life-gallery"
+            role="region"
+            aria-label="Maktab hayoti galereyasi"
+            tabIndex={0}
+          >
+            <div className="life-gallery-track">
+              {[false, true].map((isDuplicate) => (
+                <div
+                  className="life-gallery-group"
+                  aria-hidden={isDuplicate}
+                  key={String(isDuplicate)}
+                >
+                  {gallery.map(([alt, src]) => (
+                    <figure key={src}>
+                      <img
+                        src={src}
+                        alt={isDuplicate ? "" : alt}
+                        loading={isDuplicate ? "eager" : "lazy"}
+                      />
+                      <figcaption>{alt}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -548,25 +564,42 @@ export function SchoolHome() {
       </section>
 
       <section className="section location-section">
-        <div className="container location-grid">
-          <div>
-            <p className="section-label">07 / BIZNI TOPING</p>
-            <h2>Turon Odob-Ilm bilan bog‘laning.</h2>
-            <p className="lead">
-              Farg‘ona viloyatidagi yagona tasdiqlangan manzilimizga tashrif
-              buyuring yoki savollaringiz bo‘yicha bog‘laning.
-            </p>
+        <div className="container">
+          <div className="location-grid">
+            <div>
+              <p className="section-label">07 / BIZNI TOPING</p>
+              <h2>Turon Odob-Ilm bilan bog‘laning.</h2>
+              <p className="lead">
+                Filiallarimiz bilan tanishing yoki o‘zingizga yaqin lokatsiyani
+                xaritada oching.
+              </p>
+            </div>
+            <div className="location-summary">
+              <p>
+                {branches.length} ta lokatsiya:{" "}
+                {branches.map((item) => item.name).join(", ")}.
+              </p>
+              <a className="location-cta" href="/aloqa">
+                Aloqa sahifasi <ArrowRight size={15} />
+              </a>
+            </div>
           </div>
-          <div className="location-card">
-            <span>MANZIL</span>
-            <address>{officialContact.address}</address>
-            <a href={`tel:${officialContact.phone}`}>{officialContact.phone}</a>
-            <a href={officialContact.telegram} target="_blank" rel="noreferrer">
-              Telegram: @turonodobilm
-            </a>
-            <a className="location-cta" href="/aloqa">
-              Aloqa sahifasi <ArrowRight size={15} />
-            </a>
+          <div className="branch-grid">
+            {branches.map((item, index) => (
+              <article className="branch-card" key={item.name}>
+                <span>FILIAL 0{index + 1}</span>
+                <h3>{item.name}</h3>
+                <address>{item.address}</address>
+                <a
+                  href={item.mapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${item.name} filialini xaritada ochish`}
+                >
+                  Xaritada ko‘rish <ArrowRight size={15} />
+                </a>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -627,8 +660,17 @@ export function SchoolHome() {
               </label>
               <label>
                 {t.branch}
-                <select name="branch" defaultValue="Furqat">
-                  <option>Furqat</option>
+                <select
+                  name="branch"
+                  value={branch}
+                  onChange={(event) => setBranch(event.target.value)}
+                  required
+                >
+                  {branches.map((item) => (
+                    <option key={item.name} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
                 </select>
               </label>
             </div>
@@ -658,33 +700,6 @@ export function SchoolHome() {
         </div>
       </section>
 
-      {videoOpen && (
-        <div
-          className="modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Maktab videosi"
-          onClick={() => setVideoOpen(false)}
-        >
-          <div
-            className="video-modal"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="modal-close"
-              aria-label="Yopish"
-              onClick={() => setVideoOpen(false)}
-            >
-              <X />
-            </button>
-            <img src={testimonials[activeTestimonial].image} alt="" />
-            <h2>{testimonials[activeTestimonial].title}</h2>
-            <p>Turon Odob-Ilm maktab hayotidan rasmiy lavha.</p>
-          </div>
-        </div>
-      )}
-
       <footer id="contact" className="site-footer">
         <div className="container footer-grid">
           <div>
@@ -704,7 +719,7 @@ export function SchoolHome() {
             <p className="footer-label">NAVIGATSIYA</p>
             <a href="/maktab">Maktab haqida</a>
             <a href="/natijalar">Natijalar</a>
-            <a href="/qabul">Qabul</a>
+            <a href="/#admission">Qabulga ariza</a>
           </div>
         </div>
         <div className="container footer-bottom">
