@@ -13,113 +13,17 @@ import {
 } from "lucide-react";
 import {
   branches,
-  faqs,
   gallery,
   languages,
   officialContact,
   programs,
-  results,
+  schoolImages,
   schoolFacts,
   type Language,
 } from "@/lib/site-data";
+import { homeTranslations } from "@/lib/site-translations";
 
-const heroImage =
-  "https://turonodobilm.lovable.app/__l5e/assets-v1/8fe23003-d3f0-403b-aa12-1bbbbc5481cf/students-attentive.jpg";
-const translations = {
-  uz: {
-    nav: ["Maktab", "Ta’lim", "Natijalar", "Hayot", "Qabul", "Aloqa"],
-    hero: "Bilim, odob va kelajak — bir maktabda.",
-    intro:
-      "Akademik bilim, zamonaviy ko‘nikmalar va go‘zal tarbiya uyg‘unlashadigan maktab.",
-    apply: "Qabulga ariza berish",
-    about: "Maktab haqida",
-    why: "Nega Turon Odob-Ilm?",
-    whyText:
-      "Farzandingiz uchun faqat bilim emas. Biz bilim, odob va kelajak ko‘nikmalarini bitta ta’lim muhitida birlashtiramiz.",
-    programs: "Ta’lim dasturlari",
-    results: "Natijalar o‘zlari gapiradi",
-    resultText:
-      "Natija biz uchun raqamdan kengroq: o‘quvchining bilimi, odobi va mustaqil fikri.",
-    life: "Maktab hayotidan",
-    faq: "Ko‘p beriladigan savollar",
-    form: "Qabul uchun ariza",
-    formText:
-      "Ma’lumotlaringizni qoldiring, maktab jamoasi siz bilan bog‘lanadi.",
-    send: "Arizani yuborish",
-    sending: "Yuborilmoqda…",
-    success: "Arizangiz qabul qilindi. Tez orada siz bilan bog‘lanamiz.",
-    error:
-      "Arizani yuborishda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.",
-    parent: "Ota-ona ismi",
-    phone: "Telefon raqami",
-    child: "Farzand ismi",
-    grade: "Sinf",
-    language: "Ta’lim tili",
-    branch: "Filial",
-    message: "Izoh",
-  },
-  ru: {
-    nav: ["Школа", "Образование", "Результаты", "Жизнь", "Приём", "Контакты"],
-    hero: "Знания, воспитание и будущее — в одной школе.",
-    intro:
-      "Школа, где академические знания, современные навыки и воспитание развиваются вместе.",
-    apply: "Подать заявку",
-    about: "О школе",
-    why: "Почему Turon Odob-Ilm?",
-    whyText:
-      "Ребёнку нужны не только знания. Мы соединяем знания, воспитание и навыки будущего.",
-    programs: "Образовательные программы",
-    results: "Результаты говорят сами",
-    resultText:
-      "Результат — это не только цифры, но и знания, характер и самостоятельность ученика.",
-    life: "Жизнь школы",
-    faq: "Частые вопросы",
-    form: "Заявка на приём",
-    formText: "Оставьте контакты — команда школы свяжется с вами.",
-    send: "Отправить заявку",
-    sending: "Отправка…",
-    success: "Заявка принята. Мы скоро свяжемся с вами.",
-    error: "Не удалось отправить заявку. Попробуйте ещё раз.",
-    parent: "Имя родителя",
-    phone: "Телефон",
-    child: "Имя ребёнка",
-    grade: "Класс",
-    language: "Язык обучения",
-    branch: "Филиал",
-    message: "Комментарий",
-  },
-  en: {
-    nav: ["School", "Education", "Results", "Life", "Admission", "Contact"],
-    hero: "Knowledge, character and future — in one school.",
-    intro:
-      "A school where academic confidence, modern skills and character grow together.",
-    apply: "Apply for admission",
-    about: "About school",
-    why: "Why Turon Odob-Ilm?",
-    whyText:
-      "A child needs more than knowledge. We bring knowledge, character and future skills together.",
-    programs: "Education programmes",
-    results: "Results speak for themselves",
-    resultText:
-      "Results are more than numbers: knowledge, character and independent thinking.",
-    life: "School life",
-    faq: "Frequently asked questions",
-    form: "Admission application",
-    formText: "Share your details and our school team will contact you.",
-    send: "Submit application",
-    sending: "Submitting…",
-    success: "Your application was received. We will be in touch soon.",
-    error: "Could not send the application. Please try again.",
-    parent: "Parent name",
-    phone: "Phone number",
-    child: "Child name",
-    grade: "Grade",
-    language: "Education language",
-    branch: "Branch",
-    message: "Message",
-  },
-};
-
+const heroImage = schoolImages.hero;
 type Status = "idle" | "sending" | "success" | "error";
 
 export function SchoolHome() {
@@ -132,13 +36,23 @@ export function SchoolHome() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const langRef = useRef<HTMLDivElement>(null);
-  const t = translations[lang];
+  const t = homeTranslations[lang];
 
+  useEffect(() => {
+    document.title = `Turon Odob-Ilm | ${t.about}`;
+    const description = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
+    if (description) description.content = t.intro;
+  }, [t.about, t.intro]);
   useEffect(() => {
     const saved = document.cookie.match(/school-lang=(uz|ru|en)/)?.[1] as
       | Language
       | undefined;
-    if (saved) setLang(saved);
+    if (saved) {
+      setLang(saved);
+      document.documentElement.lang = saved;
+    }
     const close = (event: MouseEvent) => {
       if (!langRef.current?.contains(event.target as Node)) setLangOpen(false);
     };
@@ -167,6 +81,7 @@ export function SchoolHome() {
   function chooseLanguage(next: Language) {
     setLang(next);
     setLangOpen(false);
+    document.documentElement.lang = next;
     document.cookie = `school-lang=${next}; path=/; max-age=31536000`;
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -198,9 +113,10 @@ export function SchoolHome() {
     "#contact",
   ];
   const testimonials = [
-    { title: "Maktab muhiti bilan tanishing", image: officialImages.parents },
-    { title: "Dars jarayonidan lavha", image: officialImages.classroom },
-    { title: "IT mashg‘ulotlari", image: officialImages.it },
+    { title: t.galleryCaptions[2], image: schoolImages.classroom },
+    { title: t.galleryCaptions[3], image: schoolImages.it },
+    { title: t.galleryCaptions[1], image: schoolImages.computerClass },
+    { title: t.galleryCaptions[0], image: schoolImages.building },
   ];
 
   return (
@@ -217,7 +133,7 @@ export function SchoolHome() {
           </a>
           <nav
             className={`nav-links ${menuOpen ? "open" : ""}`}
-            aria-label="Asosiy navigatsiya"
+            aria-label={t.mainNavigation}
           >
             {t.nav.map((item, index) => (
               <a
@@ -269,7 +185,7 @@ export function SchoolHome() {
             <button
               type="button"
               className="menu-button"
-              aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"}
+              aria-label={menuOpen ? t.menuClose : t.menuOpen}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             >
@@ -281,12 +197,12 @@ export function SchoolHome() {
 
       <section id="top" className="hero">
         <div className="hero-image">
-          <img src={heroImage} alt="Turon Odob-Ilm o‘quvchilari" />
+          <img src={heroImage} alt={t.heroImageAlt} />
         </div>
         <div className="hero-overlay" />
         <div className="container hero-content">
           <p className="eyebrow">
-            Farg‘ona viloyatidagi litsenziyalangan xususiy maktab
+            {t.heroEyebrow}
             <span />
           </p>
           <h1>{t.hero}</h1>
@@ -301,9 +217,9 @@ export function SchoolHome() {
             </a>
           </div>
           <dl className="hero-facts">
-            {schoolFacts.map(([value, label]) => (
-              <div key={label}>
-                <dt>{label}</dt>
+            {schoolFacts.map(([value], index) => (
+              <div key={value}>
+                <dt>{t.factLabels[index]}</dt>
                 <dd>{value}</dd>
               </div>
             ))}
@@ -320,21 +236,11 @@ export function SchoolHome() {
           <p className="lead">{t.whyText}</p>
         </div>
         <div className="container editorial-values">
-          {[
-            "Zamonaviy ta’lim",
-            "Kuchli tarbiya",
-            "Ingliz tili",
-            "IT va dasturlash",
-            "Mustaqil fikrlash",
-            "Faol hayot",
-          ].map((item, index) => (
-            <article key={item}>
+          {t.valueCards.map((item, index) => (
+            <article key={item.title}>
               <span>0{index + 1}</span>
-              <h3>{item}</h3>
-              <p>
-                Bilimni amaliyot, hurmat va mas’uliyat bilan birga
-                rivojlantirish.
-              </p>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
             </article>
           ))}
         </div>
@@ -343,25 +249,17 @@ export function SchoolHome() {
       <section className="section mission-section">
         <div className="container mission-grid">
           <div>
-            <p className="section-label">02 / BIZNING QARASHIMIZ</p>
-            <h2>Bilim, odob va kelajak — bir maktabda.</h2>
+            <p className="section-label">02 / {t.missionLabel}</p>
+            <h2>{t.missionTitle}</h2>
           </div>
           <div className="mission-values">
-            <article>
-              <b>01</b>
-              <h3>Bilim</h3>
-              <p>Mustahkam akademik poydevor va o‘qishga qiziqish.</p>
-            </article>
-            <article>
-              <b>02</b>
-              <h3>Odob</h3>
-              <p>Hurmat, mas’uliyat va kundalik yaxshi odatlar.</p>
-            </article>
-            <article>
-              <b>03</b>
-              <h3>Kelajak</h3>
-              <p>Mustaqil fikrlash va zamonaviy ko‘nikmalar.</p>
-            </article>
+            {t.missionValues.map((item, index) => (
+              <article key={item.title}>
+                <b>0{index + 1}</b>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -369,18 +267,15 @@ export function SchoolHome() {
       <section className="section trust-section">
         <div className="container trust-grid">
           <div>
-            <p className="section-label">03 / ISHONCH</p>
-            <h2>Maktab muhitini yaqindan ko‘ring.</h2>
-            <p className="lead">
-              Turon Odob-Ilm haqida rasmiy manbalardagi haqiqiy maktab lavhalari
-              bilan tanishing.
-            </p>
+            <p className="section-label">03 / {t.trustLabel}</p>
+            <h2>{t.trustTitle}</h2>
+            <p className="lead">{t.trustText}</p>
           </div>
           <div className="testimonial-carousel">
             <button
               type="button"
               className="carousel-arrow"
-              aria-label="Oldingi"
+              aria-label={t.previousSlide}
               onClick={() =>
                 setActiveTestimonial(
                   (activeTestimonial + testimonials.length - 1) %
@@ -400,7 +295,7 @@ export function SchoolHome() {
             <button
               type="button"
               className="carousel-arrow"
-              aria-label="Keyingi"
+              aria-label={t.nextSlide}
               onClick={() =>
                 setActiveTestimonial(
                   (activeTestimonial + 1) % testimonials.length,
@@ -415,22 +310,25 @@ export function SchoolHome() {
 
       <section id="education" className="section dark-section">
         <div className="container">
-          <p className="section-label">02 / {t.programs}</p>
+          <p className="section-label">02 / {t.programLabel}</p>
           <div className="section-heading">
             <h2>{t.programs}</h2>
-            <p className="lead muted">
-              Har bir bosqich o‘quvchining yoshiga va keyingi rivojiga mos
-              quriladi.
-            </p>
+            <p className="lead muted">{t.programIntro}</p>
           </div>
           <div className="program-grid">
-            {programs.map((program) => (
+            {programs.map((program, index) => (
               <article className="program-card" key={program.range}>
-                <img src={program.image} alt={program.title} loading="lazy" />
+                <img
+                  src={program.image}
+                  alt={t.programCards[index].title}
+                  loading="lazy"
+                />
                 <div>
-                  <span>{program.range} sinflar</span>
-                  <h3>{program.title}</h3>
-                  <p>{program.text}</p>
+                  <span>
+                    {program.range} {t.gradeLabel}
+                  </span>
+                  <h3>{t.programCards[index].title}</h3>
+                  <p>{t.programCards[index].text}</p>
                 </div>
               </article>
             ))}
@@ -440,25 +338,21 @@ export function SchoolHome() {
 
       <section id="results" className="section results-section">
         <div className="container">
-          <p className="section-label">03 / {t.results}</p>
+          <p className="section-label">03 / {t.resultLabel}</p>
           <div className="section-heading">
             <h2>{t.results}</h2>
             <p className="lead">{t.resultText}</p>
           </div>
           <div className="result-list">
-            {results.map((result, index) => (
+            {t.resultCards.map((result) => (
               <article key={result.title}>
-                <span>
-                  0{index + 1} / {result.type}
-                </span>
+                <strong>{result.metric}</strong>
                 <h3>{result.title}</h3>
                 <p>{result.text}</p>
-                <a className="text-link" href="/natijalar">
-                  Batafsil <ArrowRight size={15} />
-                </a>
               </article>
             ))}
           </div>
+          <p className="results-note">{t.resultNote}</p>
         </div>
       </section>
 
@@ -467,14 +361,12 @@ export function SchoolHome() {
           <p className="section-label">04 / {t.life}</p>
           <div className="section-heading">
             <h2>{t.life}</h2>
-            <p className="lead muted">
-              Dars, muloqot, tadbir va kundalik maktab muhitidan lavhalar.
-            </p>
+            <p className="lead muted">{t.lifeText}</p>
           </div>
           <div
             className="life-gallery"
             role="region"
-            aria-label="Maktab hayoti galereyasi"
+            aria-label={t.galleryLabel}
             tabIndex={0}
           >
             <div className="life-gallery-track">
@@ -484,14 +376,14 @@ export function SchoolHome() {
                   aria-hidden={isDuplicate}
                   key={String(isDuplicate)}
                 >
-                  {gallery.map(([alt, src]) => (
+                  {gallery.map(([, src], index) => (
                     <figure key={src}>
                       <img
                         src={src}
-                        alt={isDuplicate ? "" : alt}
+                        alt={isDuplicate ? "" : t.galleryCaptions[index]}
                         loading={isDuplicate ? "eager" : "lazy"}
                       />
-                      <figcaption>{alt}</figcaption>
+                      <figcaption>{t.galleryCaptions[index]}</figcaption>
                     </figure>
                   ))}
                 </div>
@@ -504,11 +396,11 @@ export function SchoolHome() {
       <section className="section cream-section faq-section">
         <div className="container faq-grid">
           <div>
-            <p className="section-label">05 / FAQ</p>
+            <p className="section-label">05 / {t.faqLabel}</p>
             <h2>{t.faq}</h2>
           </div>
           <div>
-            {faqs.map(([question, answer], index) => (
+            {t.faqs.map(([question, answer], index) => (
               <div className="faq-item" key={question}>
                 <button
                   type="button"
@@ -527,38 +419,19 @@ export function SchoolHome() {
 
       <section className="section process-section">
         <div className="container">
-          <p className="section-label">06 / QABUL JARAYONI</p>
+          <p className="section-label">06 / {t.processLabel}</p>
           <div className="process-heading">
-            <h2>Keyingi qadamni birgalikda boshlaymiz.</h2>
-            <p className="lead">
-              Ariza yuboring — maktab jamoasi siz bilan bog‘lanib, keyingi
-              qadamlar bo‘yicha maslahat beradi.
-            </p>
+            <h2>{t.processTitle}</h2>
+            <p className="lead">{t.processText}</p>
           </div>
           <div className="process-grid">
-            <article>
-              <span>01</span>
-              <h3>Ariza yuborish</h3>
-              <p>
-                Ota-ona va farzandingiz haqidagi asosiy ma’lumotlarni qoldiring.
-              </p>
-            </article>
-            <article>
-              <span>02</span>
-              <h3>Bog‘lanish</h3>
-              <p>
-                Maktab jamoasi siz bilan bog‘lanib, savollaringizga javob
-                beradi.
-              </p>
-            </article>
-            <article>
-              <span>03</span>
-              <h3>Keyingi bosqich</h3>
-              <p>
-                Qabul bo‘yicha keyingi tartib va ma’lumotlar sizga
-                tushuntiriladi.
-              </p>
-            </article>
+            {t.processSteps.map((step, index) => (
+              <article key={step.title}>
+                <span>0{index + 1}</span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -567,16 +440,13 @@ export function SchoolHome() {
         <div className="container">
           <div className="location-grid">
             <div>
-              <p className="section-label">07 / BIZNI TOPING</p>
-              <h2>Turon Odob-Ilm bilan bog‘laning.</h2>
-              <p className="lead">
-                Filiallarimiz bilan tanishing yoki o‘zingizga yaqin lokatsiyani
-                xaritada oching.
-              </p>
+              <p className="section-label">07 / {t.locationsLabel}</p>
+              <h2>{t.locationsTitle}</h2>
+              <p className="lead">{t.locationsText}</p>
             </div>
             <div className="location-summary">
               <p>
-                {branches.length} ta lokatsiya:{" "}
+                {branches.length} {t.locationSummary}:{" "}
                 {branches.map((item) => item.name).join(", ")}.
               </p>
               <a className="location-cta" href="/aloqa">
@@ -587,16 +457,18 @@ export function SchoolHome() {
           <div className="branch-grid">
             {branches.map((item, index) => (
               <article className="branch-card" key={item.name}>
-                <span>FILIAL 0{index + 1}</span>
+                <span>
+                  {t.branchLabel} 0{index + 1}
+                </span>
                 <h3>{item.name}</h3>
-                <address>{item.address}</address>
+                <address>{t.branchAddresses[index]}</address>
                 <a
                   href={item.mapUrl}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={`${item.name} filialini xaritada ochish`}
+                  aria-label={`${item.name} ${t.mapAria}`}
                 >
-                  Xaritada ko‘rish <ArrowRight size={15} />
+                  {t.mapLink} <ArrowRight size={15} />
                 </a>
               </article>
             ))}
@@ -642,7 +514,7 @@ export function SchoolHome() {
                 {t.grade}
                 <select name="grade" defaultValue="" required>
                   <option value="" disabled>
-                    —
+                    {t.select}
                   </option>
                   {Array.from({ length: 11 }, (_, index) => (
                     <option key={index + 1}>{index + 1}</option>
@@ -654,8 +526,8 @@ export function SchoolHome() {
               <label>
                 {t.language}
                 <select name="language" defaultValue="Uzbek">
-                  <option>Uzbek</option>
-                  <option>Русский</option>
+                  <option value="Uzbek">{t.languages[0]}</option>
+                  <option value="Russian">{t.languages[1]}</option>
                 </select>
               </label>
               <label>
@@ -708,35 +580,27 @@ export function SchoolHome() {
               alt="Turon Odob-Ilm"
               className="footer-logo"
             />
-            <p>{officialContact.address}</p>
+            <p>{t.branchAddresses[0]}</p>
           </div>
           <div>
-            <p className="footer-label">ALOQA</p>
+            <p className="footer-label">{t.contact}</p>
             <a href={`tel:${officialContact.phone}`}>{officialContact.phone}</a>
             <a href={officialContact.telegram}>@turonodobilm</a>
           </div>
           <div>
-            <p className="footer-label">NAVIGATSIYA</p>
-            <a href="/maktab">Maktab haqida</a>
-            <a href="/natijalar">Natijalar</a>
-            <a href="/#admission">Qabulga ariza</a>
+            <p className="footer-label">{t.navigation}</p>
+            <a href="/maktab">{t.footerSchool}</a>
+            <a href="/natijalar">{t.footerResults}</a>
+            <a href="/#admission">{t.footerAdmission}</a>
           </div>
         </div>
         <div className="container footer-bottom">
           <span>© 2026 Turon Odob-Ilm</span>
-          <span>Litsenziya №038782 · 14.09.2022</span>
+          <span>
+            {t.footerLicense} №038782 · 14.09.2022
+          </span>
         </div>
       </footer>
     </main>
   );
 }
-
-export const officialImages = {
-  hero: heroImage,
-  classroom:
-    "https://turonodobilm.lovable.app/__l5e/assets-v1/409c4bac-440f-4dc4-91d2-6e9d44e736bb/classroom-branded.jpg",
-  it: "https://turonodobilm.lovable.app/__l5e/assets-v1/625d969e-2ece-4ecd-a9fa-87321c5d84cc/it-lab-active.jpg",
-  facade:
-    "https://turonodobilm.lovable.app/__l5e/assets-v1/c52ef57e-b881-4689-b826-c79c58a94d75/facade.jpg",
-  parents: "https://turonodobilm.lovable.app/assets/life-parents-yZ6LsEAW.jpg",
-};

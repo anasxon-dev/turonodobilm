@@ -1,123 +1,97 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, MapPin, Phone } from "lucide-react";
-import { branches, officialContact } from "@/lib/site-data";
-import { officialImages } from "./school-home";
-
-const pages = {
-  maktab: {
-    label: "Maktab haqida",
-    kicker: "01 / TURON ODOB-ILM",
-    title: "Bilimga mehr. Odobga tayanch.",
-    body: "Turon Odob-Ilm — Farg‘ona viloyatidagi litsenziyalangan xususiy maktab. Biz akademik bilim, zamonaviy ko‘nikma va go‘zal tarbiya uyg‘unligini yaratamiz.",
-    image: officialImages.facade,
-    sections: [
-      [
-        "Bizning missiyamiz",
-        "Zamonaviy bilim, kuchli tarbiya va keng dunyoqarashga ega avlodni voyaga yetkazish.",
-      ],
-      [
-        "Rasmiy ma’lumot",
-        "1–11-sinflar · O‘zbek / rus tillari · Litsenziya №038782 · 14.09.2022",
-      ],
-      [
-        "Bizning yondashuvimiz",
-        "Har bir o‘quvchiga individual e’tibor, ochiq muloqot va kundalik rivojlanish uchun aniq muhit.",
-      ],
-    ],
-  },
-  natijalar: {
-    label: "Natijalar",
-    kicker: "02 / ISHONCH",
-    title: "Natija — har kuni yaratiladigan jarayon.",
-    body: "Biz tasdiqlanmagan raqamlarni emas, o‘quvchining rivoji, mustaqil fikri va kelajakka tayyorligini qadrlaymiz.",
-    image: officialImages.classroom,
-    sections: [
-      [
-        "Akademik poydevor",
-        "Tizimli darslar, mustahkam bilim va amaliy yondashuv orqali o‘quvchilarni keyingi bosqichga tayyorlaymiz.",
-      ],
-      [
-        "Ingliz tili",
-        "Tilni faqat fan emas, kundalik muloqot va xalqaro imkoniyatlar vositasi sifatida o‘rgatamiz.",
-      ],
-      [
-        "IT va dasturlash",
-        "Raqamli savodxonlik va dasturlashga qiziqish zamonaviy ta’limning ajralmas qismidir.",
-      ],
-    ],
-  },
-  "maktab-hayoti": {
-    label: "Maktab hayoti",
-    kicker: "03 / MUHIT",
-    title: "Bu yerda darsdan ko‘ra ko‘proq narsa bor.",
-    body: "Muloqot, tadbirlar, sport, ijod va ota-onalar bilan hamkorlik maktab hayotini mazmunli qiladi.",
-    image: officialImages.parents,
-    sections: [
-      [
-        "Dars jarayoni",
-        "Har bir mashg‘ulot diqqat, savol va fikr almashish uchun imkoniyat yaratadi.",
-      ],
-      [
-        "Hamkorlik",
-        "Ota-onalar bilan ochiq muloqot bolaning ta’lim yo‘lini yanada mustahkamlaydi.",
-      ],
-      [
-        "Faol hayot",
-        "Sport va jamoaviy tadbirlar o‘quvchining ishonchi va mas’uliyatini oshiradi.",
-      ],
-    ],
-  },
-  aloqa: {
-    label: "Aloqa",
-    kicker: "04 / BOG‘LANISH",
-    title: "Savollaringiz bormi? Gaplashamiz.",
-    body: "Maktab, qabul yoki ta’lim yo‘nalishlari haqida ma’lumot olish uchun biz bilan bog‘laning.",
-    image: officialImages.facade,
-    sections: [
-      ["Telefon", officialContact.phone],
-      ["Filiallar", branches.map((branch) => branch.name).join(" · ")],
-      ["Telegram", "@turonodobilm"],
-    ],
-  },
-} as const;
-
-type PageType = keyof typeof pages;
+import {
+  branches,
+  languages,
+  officialContact,
+  type Language,
+} from "@/lib/site-data";
+import {
+  homeTranslations,
+  innerTranslations,
+  type PageType,
+} from "@/lib/site-translations";
 
 export function PageShell({ type }: { type: PageType }) {
-  const page = pages[type];
+  const [lang, setLang] = useState<Language>("uz");
+  const t = innerTranslations[lang];
+  const page = t.pages[type];
+
+  useEffect(() => {
+    const saved = document.cookie.match(/school-lang=(uz|ru|en)/)?.[1] as
+      | Language
+      | undefined;
+    if (saved) {
+      setLang(saved);
+      document.documentElement.lang = saved;
+    }
+  }, []);
+  useEffect(() => {
+    document.title = `${page.label} | Turon Odob-Ilm`;
+    const description = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
+    if (description) description.content = page.body;
+  }, [page.body, page.label]);
+
+  function chooseLanguage(next: Language) {
+    setLang(next);
+    document.documentElement.lang = next;
+    document.cookie = `school-lang=${next}; path=/; max-age=31536000`;
+  }
+
   return (
     <main className="inner-page">
       <header className="site-header inner-nav">
         <div className="container nav-wrap">
-          <Link href="/" className="brand">
+          <Link href="/" className="brand" aria-label="Turon Odob-Ilm">
             <img src="/turon-logo.png" alt="Turon Odob-Ilm" />
           </Link>
-          <nav className="inner-nav-links" aria-label="Asosiy navigatsiya">
-            <Link href="/maktab">Maktab</Link>
-            <Link href="/natijalar">Natijalar</Link>
-            <Link href="/maktab-hayoti">Hayot</Link>
-            <Link href="/aloqa">Aloqa</Link>
+          <nav
+            className="inner-nav-links"
+            aria-label={t.mainNavigation}
+          >
+            <Link href="/maktab">{t.nav[0]}</Link>
+            <Link href="/natijalar">{t.nav[1]}</Link>
+            <Link href="/maktab-hayoti">{t.nav[2]}</Link>
+            <Link href="/aloqa">{t.nav[3]}</Link>
           </nav>
-          <Link className="nav-cta" href="/#admission">
-            Qabulga ariza berish
-            <ArrowRight size={15} />
-          </Link>
+          <div className="inner-header-actions">
+            <div className="inner-language">
+              <select
+                aria-label={t.language}
+                value={lang}
+                onChange={(event) =>
+                  chooseLanguage(event.target.value as Language)
+                }
+              >
+                {(Object.keys(languages) as Language[]).map((language) => (
+                  <option value={language} key={language}>
+                    {language.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Link className="nav-cta" href="/#admission">
+              {t.apply}
+              <ArrowRight size={15} />
+            </Link>
+          </div>
         </div>
       </header>
       <section className="inner-hero">
-        <div className="inner-image">
-          <img src={page.image} alt={page.label} />
-        </div>
-        <div className="inner-hero-shade" />
         <div className="container inner-content">
           <Link className="back-link" href="/">
-            <ArrowLeft size={15} /> Bosh sahifa
+            <ArrowLeft size={15} /> {t.back}
           </Link>
           <p className="inner-kicker">{page.kicker}</p>
           <h1>{page.title}</h1>
           <p className="lead muted">{page.body}</p>
           <Link className="button button-gold" href="/#admission">
-            Qabul haqida bilish
+            {t.learnAdmission}
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -126,12 +100,12 @@ export function PageShell({ type }: { type: PageType }) {
         <div className="container">
           <div className="inner-intro-head">
             <p className="section-label">TURON ODOB-ILM</p>
-            <h2>Ta’limga jiddiy, bolaga e’tibor bilan.</h2>
+            <h2>{t.introTitle}</h2>
           </div>
           <div className="inner-sections">
-            {page.sections.map(([title, body], i) => (
+            {page.sections.map(([title, body], index) => (
               <article key={title}>
-                <span>0{i + 1}</span>
+                <span>0{index + 1}</span>
                 <div>
                   <h3>{title}</h3>
                   <p className="lead">{body}</p>
@@ -146,16 +120,13 @@ export function PageShell({ type }: { type: PageType }) {
         <section className="section contact-panel">
           <div className="container contact-panel-grid">
             <div>
-              <p className="section-label">OCHIQ MULOQOT</p>
-              <h2>Bizni toping va bog‘laning.</h2>
-              <p className="lead">
-                O‘zingizga qulay filialni tanlang yoki telefon orqali
-                bog‘laning. Har bir lokatsiyani xaritada ochishingiz mumkin.
-              </p>
+              <p className="section-label">{t.contactLabel}</p>
+              <h2>{t.contactTitle}</h2>
+              <p className="lead">{t.contactText}</p>
             </div>
             <div className="contact-card">
               <MapPin size={20} />
-              <strong>Filiallarimiz bilan bog‘laning</strong>
+              <strong>{t.branchContact}</strong>
               <a href={`tel:${officialContact.phone}`}>
                 <Phone size={16} /> {officialContact.phone}
               </a>
@@ -171,16 +142,18 @@ export function PageShell({ type }: { type: PageType }) {
           <div className="container branch-grid">
             {branches.map((branch, index) => (
               <article className="branch-card" key={branch.name}>
-                <span>FILIAL 0{index + 1}</span>
+                <span>
+                  {t.branchLabel} 0{index + 1}
+                </span>
                 <h3>{branch.name}</h3>
-                <address>{branch.address}</address>
+                <address>{homeTranslations[lang].branchAddresses[index]}</address>
                 <a
                   href={branch.mapUrl}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={`${branch.name} filialini xaritada ochish`}
+                  aria-label={`${branch.name} ${t.mapAria}`}
                 >
-                  Xaritada ko‘rish
+                  {t.mapLink}
                   <ArrowRight size={15} />
                 </a>
               </article>
@@ -191,11 +164,11 @@ export function PageShell({ type }: { type: PageType }) {
         <section className="section inner-cta">
           <div className="container inner-cta-grid">
             <div>
-              <p className="section-label">KEYINGI QADAM</p>
-              <h2>Farzandingiz kelajagini birgalikda boshlaymiz.</h2>
+              <p className="section-label">{t.nextLabel}</p>
+              <h2>{t.nextTitle}</h2>
             </div>
             <Link className="button button-gold" href="/#admission">
-              Qabulga ariza berish
+              {t.apply}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -203,7 +176,7 @@ export function PageShell({ type }: { type: PageType }) {
       )}
       <footer className="site-footer">
         <div className="container footer-bottom">
-          <span>© 2026 Turon Odob-Ilm</span>
+          <span>{t.footer}</span>
           <a href={`tel:${officialContact.phone}`}>
             <Phone size={14} /> {officialContact.phone}
           </a>
@@ -212,5 +185,3 @@ export function PageShell({ type }: { type: PageType }) {
     </main>
   );
 }
-
-export { pages };
