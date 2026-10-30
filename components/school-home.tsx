@@ -449,8 +449,8 @@ export function SchoolHome() {
                 {branches.length} {t.locationSummary}:{" "}
                 {branches.map((item) => item.name).join(", ")}.
               </p>
-              <a className="location-cta" href="/aloqa">
-                Aloqa sahifasi <ArrowRight size={15} />
+              <a className="location-cta" href="#contact">
+                {t.contact} <ArrowRight size={15} />
               </a>
             </div>
           </div>
@@ -590,7 +590,7 @@ export function SchoolHome() {
           <div>
             <p className="footer-label">{t.navigation}</p>
             <a href="/maktab">{t.footerSchool}</a>
-            <a href="/natijalar">{t.footerResults}</a>
+            <a href="#results">{t.footerResults}</a>
             <a href="/#admission">{t.footerAdmission}</a>
           </div>
         </div>

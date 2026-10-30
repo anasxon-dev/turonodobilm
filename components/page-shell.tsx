@@ -1,24 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, MapPin, Phone } from "lucide-react";
 import {
-  branches,
-  languages,
-  officialContact,
-  type Language,
-} from "@/lib/site-data";
-import {
-  homeTranslations,
-  innerTranslations,
-  type PageType,
-} from "@/lib/site-translations";
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Menu,
+  Phone,
+  X,
+} from "lucide-react";
+import { languages, officialContact, type Language } from "@/lib/site-data";
+import { innerTranslations, type PageType } from "@/lib/site-translations";
 
 export function PageShell({ type }: { type: PageType }) {
   const [lang, setLang] = useState<Language>("uz");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
   const t = innerTranslations[lang];
   const page = t.pages[type];
+  const links = [
+    "/#school",
+    "/#education",
+    "/#results",
+    "/#life",
+    "/#admission",
+    "/#contact",
+  ];
 
   useEffect(() => {
     const saved = document.cookie.match(/school-lang=(uz|ru|en)/)?.[1] as
@@ -28,6 +38,21 @@ export function PageShell({ type }: { type: PageType }) {
       setLang(saved);
       document.documentElement.lang = saved;
     }
+    const close = (event: MouseEvent) => {
+      if (!langRef.current?.contains(event.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
   }, []);
   useEffect(() => {
     document.title = `${page.label} | Turon Odob-Ilm`;
@@ -39,6 +64,7 @@ export function PageShell({ type }: { type: PageType }) {
 
   function chooseLanguage(next: Language) {
     setLang(next);
+    setLangOpen(false);
     document.documentElement.lang = next;
     document.cookie = `school-lang=${next}; path=/; max-age=31536000`;
   }
@@ -51,34 +77,65 @@ export function PageShell({ type }: { type: PageType }) {
             <img src="/turon-logo.png" alt="Turon Odob-Ilm" />
           </Link>
           <nav
-            className="inner-nav-links"
+            className={`nav-links ${menuOpen ? "open" : ""}`}
             aria-label={t.mainNavigation}
           >
-            <Link href="/maktab">{t.nav[0]}</Link>
-            <Link href="/natijalar">{t.nav[1]}</Link>
-            <Link href="/maktab-hayoti">{t.nav[2]}</Link>
-            <Link href="/aloqa">{t.nav[3]}</Link>
-          </nav>
-          <div className="inner-header-actions">
-            <div className="inner-language">
-              <select
-                aria-label={t.language}
-                value={lang}
-                onChange={(event) =>
-                  chooseLanguage(event.target.value as Language)
-                }
+            {t.nav.map((item, index) => (
+              <Link
+                key={item}
+                href={links[index]}
+                onClick={() => setMenuOpen(false)}
               >
-                {(Object.keys(languages) as Language[]).map((language) => (
-                  <option value={language} key={language}>
-                    {language.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Link className="nav-cta" href="/#admission">
+                {item}
+              </Link>
+            ))}
+            <Link
+              className="nav-cta"
+              href="/#admission"
+              onClick={() => setMenuOpen(false)}
+            >
               {t.apply}
               <ArrowRight size={15} />
             </Link>
+          </nav>
+          <div className="inner-header-actions">
+            <div className="language" ref={langRef}>
+              <button
+                type="button"
+                className="language-trigger"
+                aria-haspopup="menu"
+                aria-expanded={langOpen}
+                onClick={() => setLangOpen(!langOpen)}
+              >
+                {lang.toUpperCase()}
+                <ChevronDown size={14} />
+              </button>
+              {langOpen && (
+                <div className="language-menu">
+                  {(Object.keys(languages) as Language[])
+                    .filter((language) => language !== lang)
+                    .map((language) => (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        key={language}
+                        onClick={() => chooseLanguage(language)}
+                      >
+                        {language.toUpperCase()}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              className="menu-button"
+              aria-label={menuOpen ? t.menuClose : t.menuOpen}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X /> : <Menu />}
+            </button>
           </div>
         </div>
       </header>
@@ -116,64 +173,18 @@ export function PageShell({ type }: { type: PageType }) {
           </div>
         </div>
       </section>
-      {type === "aloqa" ? (
-        <section className="section contact-panel">
-          <div className="container contact-panel-grid">
-            <div>
-              <p className="section-label">{t.contactLabel}</p>
-              <h2>{t.contactTitle}</h2>
-              <p className="lead">{t.contactText}</p>
-            </div>
-            <div className="contact-card">
-              <MapPin size={20} />
-              <strong>{t.branchContact}</strong>
-              <a href={`tel:${officialContact.phone}`}>
-                <Phone size={16} /> {officialContact.phone}
-              </a>
-              <a
-                href={officialContact.telegram}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Telegram: @turonodobilm
-              </a>
-            </div>
+      <section className="section inner-cta">
+        <div className="container inner-cta-grid">
+          <div>
+            <p className="section-label">{t.nextLabel}</p>
+            <h2>{t.nextTitle}</h2>
           </div>
-          <div className="container branch-grid">
-            {branches.map((branch, index) => (
-              <article className="branch-card" key={branch.name}>
-                <span>
-                  {t.branchLabel} 0{index + 1}
-                </span>
-                <h3>{branch.name}</h3>
-                <address>{homeTranslations[lang].branchAddresses[index]}</address>
-                <a
-                  href={branch.mapUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${branch.name} ${t.mapAria}`}
-                >
-                  {t.mapLink}
-                  <ArrowRight size={15} />
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className="section inner-cta">
-          <div className="container inner-cta-grid">
-            <div>
-              <p className="section-label">{t.nextLabel}</p>
-              <h2>{t.nextTitle}</h2>
-            </div>
-            <Link className="button button-gold" href="/#admission">
-              {t.apply}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        </section>
-      )}
+          <Link className="button button-gold" href="/#admission">
+            {t.apply}
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
       <footer className="site-footer">
         <div className="container footer-bottom">
           <span>{t.footer}</span>

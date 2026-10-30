@@ -467,47 +467,18 @@
   min-height: 100vh;
 }
 .inner-nav {
-  position: absolute !important;
+  position: fixed;
 }
 .inner-nav .nav-wrap {
   background: rgba(8, 11, 10, 0.92);
   border-color: rgba(215, 179, 106, 0.25);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
 }
-.inner-nav-links {
-  display: flex;
-  gap: 24px;
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-light);
-}
-.inner-nav-links a:hover {
-  color: var(--gold-light);
-}
 .inner-header-actions {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   gap: 12px;
-}
-.inner-nav .inner-language {
-  display: block;
-  margin: 0;
-}
-.inner-language select {
-  width: 64px;
-  padding: 9px 7px;
-  border-color: rgba(215, 179, 106, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-}
-.inner-language select option {
-  background: var(--cream);
-  color: var(--ink);
 }
 .inner-hero {
   position: relative;
@@ -797,7 +768,9 @@ button {
   border: 1px solid rgba(215, 179, 106, 0.25);
   border-radius: 24px;
   background: rgba(8, 11, 10, 0.88);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 18px 45px rgba(0, 0, 0, 0.32);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 18px 45px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(16px);
 }
 .brand {
@@ -1466,6 +1439,9 @@ textarea:focus {
     width: 58px;
     height: 56px;
   }
+  .inner-header-actions {
+    margin-left: auto;
+  }
   .inner-nav .nav-cta {
     margin-left: 0;
     flex-shrink: 0;
@@ -1473,32 +1449,6 @@ textarea:focus {
     padding: 10px 12px;
     font-size: 11px;
     white-space: nowrap;
-  }
-  .inner-nav-links {
-    display: grid;
-    position: absolute;
-    top: 82px;
-    left: 16px;
-    right: 16px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-    margin: 0;
-    padding: 8px 12px;
-    border: 1px solid rgba(215, 179, 106, 0.25);
-    border-radius: 14px;
-    background: rgba(8, 11, 10, 0.98);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
-    font-size: 13px;
-  }
-  .inner-nav-links a {
-    padding: 12px 8px;
-    color: var(--text-light);
-  }
-  .inner-nav-links a:nth-child(odd) {
-    border-right: 1px solid rgba(215, 179, 106, 0.16);
-  }
-  .inner-nav-links a:nth-child(n + 3) {
-    border-top: 1px solid rgba(215, 179, 106, 0.16);
   }
   .mission-grid > *,
   .trust-grid > *,
@@ -1590,9 +1540,6 @@ textarea:focus {
   .inner-nav .nav-cta {
     padding: 10px 11px;
     font-size: 10px;
-  }
-  .inner-nav-links {
-    top: 76px;
   }
   .trust-grid {
     gap: 28px;
